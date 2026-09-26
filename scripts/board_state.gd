@@ -10,6 +10,13 @@ var height: int
 var length_cap: int
 var length_used: int = 0
 
+## Scoring values (tunable). An enclosed empty Cell is worth POINTS_CELL;
+## Apple/Cherry/Bee Cells are worth their own value instead.
+const POINTS_CELL := 1
+const POINTS_APPLE := 5
+const POINTS_CHERRY := 10
+const POINTS_BEE := -5
+
 const _ORTHOGONAL := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
 
 var _cells: Array
@@ -157,11 +164,24 @@ func score_report() -> ScoreReport:
 			if enclosure.cells.is_empty():
 				continue
 			for c in enclosure.cells:
-				if get_cell(c) == Cell.EMPTY:
-					enclosure.score += 1
+				enclosure.score += _cell_points(get_cell(c))
 			report.enclosures.append(enclosure)
 			report.total += enclosure.score
 	return report
+
+func _cell_points(cell: Cell) -> int:
+	match cell:
+		Cell.EMPTY:
+			return POINTS_CELL
+		Cell.APPLE:
+			return POINTS_APPLE
+		Cell.CHERRY:
+			return POINTS_CHERRY
+		Cell.BEE:
+			return POINTS_BEE
+		Cell.BODY, Cell.WATER:
+			return 0
+	return 0
 
 ## Marks every non-wall Cell orthogonally reachable from start as seen and
 ## returns them. Empty if start is a wall or already seen.

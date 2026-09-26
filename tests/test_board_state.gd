@@ -181,7 +181,7 @@ func test_out_of_bounds_tap_is_noop() -> void:
 
 # --- Enclosure detection + scoring ---
 
-# Builds a board from rows: '.' empty, '#' body, '~' water.
+# Builds a board from rows: '.' empty, '#' body, '~' water, 'A' apple, 'C' cherry, 'B' bee.
 func _board_from(rows: Array) -> BoardState:
 	var grid := []
 	var body := 0
@@ -194,6 +194,12 @@ func _board_from(rows: Array) -> BoardState:
 					body += 1
 				"~":
 					r.append(Cell.WATER)
+				"A":
+					r.append(Cell.APPLE)
+				"C":
+					r.append(Cell.CHERRY)
+				"B":
+					r.append(Cell.BEE)
 				_:
 					r.append(Cell.EMPTY)
 		grid.append(r)
@@ -253,3 +259,34 @@ func test_split_dog_bodies_still_count_as_walls() -> void:
 	var b := _board_from([".....", ".###.", ".#.#.", ".###.", "....."])
 	b.resolve_tap(Vector2i(1, 2)) # remove a wall cell
 	assert_eq(b.score_report().total, 0)
+
+func test_enclosed_apple_adds_five_instead_of_plain_point() -> void:
+	var report := _board_from(["#####", "#.A.#", "#####"]).score_report()
+	assert_eq(report.total, 2 + BoardState.POINTS_APPLE)
+
+func test_enclosed_cherry_adds_bonus() -> void:
+	var report := _board_from(["#####", "#.C.#", "#####"]).score_report()
+	assert_eq(report.total, 2 + BoardState.POINTS_CHERRY)
+
+func test_enclosed_bee_applies_penalty() -> void:
+	var report := _board_from(["#######", "#.....#", "#..B..#", "#######"]).score_report()
+	assert_eq(report.total, 9 + BoardState.POINTS_BEE)
+
+func test_bee_enclosure_still_scores_positive_when_outweighed() -> void:
+	var report := _board_from(["#####", "#BC.#", "#####"]).score_report()
+	assert_eq(report.enclosures.size(), 1)
+	assert_eq(report.total, BoardState.POINTS_CELL + BoardState.POINTS_CHERRY + BoardState.POINTS_BEE)
+
+func test_bee_enclosure_can_go_negative_without_voiding() -> void:
+	var report := _board_from(["####", "#B.#", "####"]).score_report()
+	assert_eq(report.total, BoardState.POINTS_CELL + BoardState.POINTS_BEE)
+
+func test_unenclosed_elements_score_nothing() -> void:
+	var report := _board_from(["A.C.B"]).score_report()
+	assert_eq(report.total, 0)
+
+func test_modifiers_are_scored_per_enclosure() -> void:
+	var report := _board_from(["#####.#####", "#.A.#.#.B.#", "#####.#####"]).score_report()
+	assert_eq(report.enclosures[0].score, 2 * BoardState.POINTS_CELL + BoardState.POINTS_APPLE)
+	assert_eq(report.enclosures[1].score, 2 * BoardState.POINTS_CELL + BoardState.POINTS_BEE)
+	assert_eq(report.total, 4 * BoardState.POINTS_CELL + BoardState.POINTS_APPLE + BoardState.POINTS_BEE)
