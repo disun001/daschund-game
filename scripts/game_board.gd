@@ -15,6 +15,7 @@ extends Node2D
 var board: BoardState
 var split_warning: Label
 var done_button: Button
+var score_label: Label
 
 func _ready() -> void:
 	board = BoardState.new(board_width, board_height, dog_length_cap)
@@ -30,6 +31,8 @@ func _build_hud() -> void:
 	var box := VBoxContainer.new()
 	box.position = Vector2(8, board_height * board_view.cell_size() + 8)
 	layer.add_child(box)
+	score_label = Label.new()
+	box.add_child(score_label)
 	split_warning = Label.new()
 	split_warning.text = "Dog is split"
 	box.add_child(split_warning)
@@ -44,3 +47,4 @@ func _refresh() -> void:
 	board_view.sync_from_board(board)
 	split_warning.visible = board.has_dog() and not board.is_dog_connected()
 	done_button.disabled = not board.can_submit()
+	score_label.text = "Score: %d" % board.score_report().total

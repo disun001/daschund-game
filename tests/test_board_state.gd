@@ -178,3 +178,78 @@ func test_out_of_bounds_tap_is_noop() -> void:
 
 	assert_eq(action, Action.INVALID)
 	assert_eq(board.length_used, 1)
+
+# --- Enclosure detection + scoring ---
+
+# Builds a board from rows: '.' empty, '#' body, '~' water.
+func _board_from(rows: Array) -> BoardState:
+	var grid := []
+	var body := 0
+	for row in rows:
+		var r := []
+		for ch in row:
+			match ch:
+				"#":
+					r.append(Cell.BODY)
+					body += 1
+				"~":
+					r.append(Cell.WATER)
+				_:
+					r.append(Cell.EMPTY)
+		grid.append(r)
+	var b := BoardState.new(rows[0].length(), rows.size(), 99, grid)
+	b.length_used = body
+	return b
+
+func test_open_board_has_no_enclosures() -> void:
+	var report := _board_from(["...", "...", "..."]).score_report()
+	assert_eq(report.enclosures.size(), 0)
+	assert_eq(report.total, 0)
+
+func test_body_ring_encloses_center() -> void:
+	var report := _board_from([".....", ".###.", ".#.#.", ".###.", "....."]).score_report()
+	assert_eq(report.enclosures.size(), 1)
+	assert_eq(report.total, 1)
+
+func test_border_only_anchor_path_seals_region() -> void:
+	var report := _board_from(["..#..", "..#..", "..#.."]).score_report()
+	assert_eq(report.enclosures.size(), 0, "a wall splitting the board leaves both sides open to the edge")
+	var sealed := _board_from(["#####", "#...#", "#...#", "#####"]).score_report()
+	assert_eq(sealed.total, 6)
+
+func test_board_edge_alone_never_seals() -> void:
+	var report := _board_from([".....", ".....", "..#..", "....."]).score_report()
+	assert_eq(report.total, 0)
+
+func test_water_only_and_mixed_anchors_seal() -> void:
+	var water := _board_from([".....", ".~~~.", ".~.~.", ".~~~.", "....."]).score_report()
+	assert_eq(water.total, 1)
+	var mixed := _board_from([".....", ".~##.", ".~.#.", ".###.", "....."]).score_report()
+	assert_eq(mixed.total, 1)
+
+func test_diagonal_pair_closes_corner_gap() -> void:
+	# Center cell (2,2) is sealed only via diagonal joins at every corner.
+	var closed := _board_from([".....", "..#..", ".#.#.", "..#..", "....."]).score_report()
+	assert_eq(closed.total, 1, "diagonal walls seal the gaps")
+	var open := _board_from([".....", "..#..", ".#.#.", ".....", "....."]).score_report()
+	assert_eq(open.total, 0, "an unclosed corner leaks")
+
+func test_diagonal_body_water_pair_seals() -> void:
+	var report := _board_from([".....", "..~..", ".#.#.", "..~..", "....."]).score_report()
+	assert_eq(report.total, 1)
+
+func test_multiple_disjoint_enclosures_are_summed() -> void:
+	var report := _board_from([
+		"#####.#####",
+		"#...#.#...#",
+		"#####.#####",
+	]).score_report()
+	assert_eq(report.enclosures.size(), 2)
+	assert_eq(report.enclosures[0].score, 3)
+	assert_eq(report.enclosures[1].score, 3)
+	assert_eq(report.total, 6)
+
+func test_split_dog_bodies_still_count_as_walls() -> void:
+	var b := _board_from([".....", ".###.", ".#.#.", ".###.", "....."])
+	b.resolve_tap(Vector2i(1, 2)) # remove a wall cell
+	assert_eq(b.score_report().total, 0)

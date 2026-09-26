@@ -39,3 +39,20 @@ func test_input_controller_adopts_board_view_cell_size() -> void:
 
 	assert_eq(board_node.input_controller.cell_pixel_size, board_node.board_view.cell_size())
 
+
+func test_hud_shows_live_score() -> void:
+	var scene: PackedScene = load("res://scenes/game_board.tscn")
+	var board_node: GameBoard = add_child_autofree(scene.instantiate())
+	await wait_process_frames(1)
+	assert_eq(board_node.score_label.text, "Score: 0")
+
+func test_hud_score_updates_after_edit_that_encloses() -> void:
+	var scene: PackedScene = load("res://scenes/game_board.tscn")
+	var board_node: GameBoard = add_child_autofree(scene.instantiate())
+	await wait_process_frames(1)
+	# A diagonal diamond around (2,2) seals that cell (no squeezing).
+	for p in [Vector2i(2, 1), Vector2i(3, 2), Vector2i(2, 3), Vector2i(1, 2)]:
+		var px: int = board_node.board_view.cell_size()
+		_click_at(board_node.input_controller, Vector2(p.x * px + 4, p.y * px + 4))
+	assert_eq(board_node.board.length_used, 4)
+	assert_eq(board_node.score_label.text, "Score: 1")

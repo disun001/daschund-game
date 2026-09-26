@@ -10,6 +10,8 @@ var height: int
 var length_cap: int
 var length_used: int = 0
 
+const _ORTHOGONAL := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+
 var _cells: Array
 
 func _init(p_width: int, p_height: int, p_length_cap: int, initial_cells: Array = []) -> void:
@@ -125,3 +127,66 @@ func resolve_tap(pos: Vector2i) -> Action:
 func _add_body(pos: Vector2i) -> void:
 	_set_cell(pos, Cell.BODY)
 	length_used += 1
+
+## Enclosure query for the live HUD and (later) the Results screen.
+## Returns {enclosures: Array[{cells: Array[Vector2i], score: int}], total: int}.
+## Fill starts at the Board edge and moves orthogonally through non-wall Cells
+## (Body and Water are walls). Orthogonal-only movement is what makes a
+## diagonal wall pair seal its corner gap ("no squeezing").
+func score_report() -> Dictionary:
+	var seen := {}
+	var stack: Array[Vector2i] = []
+	for y in range(height):
+		for x in range(width):
+			if x == 0 or y == 0 or x == width - 1 or y == height - 1:
+				_visit(Vector2i(x, y), seen, stack)
+	_flood(seen, stack)
+
+	var enclosures: Array = []
+	var total := 0
+	for y in range(height):
+		for x in range(width):
+			var start := Vector2i(x, y)
+			if seen.has(start) or _is_wall(start):
+				continue
+			var cells: Array[Vector2i] = []
+			var inner: Array[Vector2i] = []
+			seen[start] = true
+			inner.append(start)
+			while not inner.is_empty():
+				var cur: Vector2i = inner.pop_back()
+				cells.append(cur)
+				for n in _orthogonal_neighbors(cur):
+					if not seen.has(n) and not _is_wall(n):
+						seen[n] = true
+						inner.append(n)
+			var score := 0
+			for c in cells:
+				if get_cell(c) == Cell.EMPTY:
+					score += 1
+			enclosures.append({"cells": cells, "score": score})
+			total += score
+	return {"enclosures": enclosures, "total": total}
+
+func _is_wall(pos: Vector2i) -> bool:
+	var c := get_cell(pos)
+	return c == Cell.BODY or c == Cell.WATER
+
+func _visit(pos: Vector2i, seen: Dictionary, stack: Array[Vector2i]) -> void:
+	if not seen.has(pos) and not _is_wall(pos):
+		seen[pos] = true
+		stack.append(pos)
+
+func _flood(seen: Dictionary, stack: Array[Vector2i]) -> void:
+	while not stack.is_empty():
+		var cur: Vector2i = stack.pop_back()
+		for n in _orthogonal_neighbors(cur):
+			_visit(n, seen, stack)
+
+func _orthogonal_neighbors(pos: Vector2i) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for d in _ORTHOGONAL:
+		var n: Vector2i = pos + d
+		if is_in_bounds(n):
+			out.append(n)
+	return out
