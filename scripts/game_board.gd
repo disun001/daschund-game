@@ -28,7 +28,10 @@ func _ready() -> void:
 	input_controller.cell_pixel_size = board_view.cell_size()
 	input_controller.board_changed.connect(_on_board_changed)
 	_build_hud()
-	_start_board()
+	if sequence.is_finished():
+		_show_end_of_sequence()
+	else:
+		_start_board()
 
 ## Instantiates a fresh BoardState from the sequence's current board data.
 func _start_board() -> void:

@@ -61,3 +61,8 @@ func test_after_last_board_shows_end_of_sequence_without_looping() -> void:
 	assert_false(node.results_panel.visible)
 	assert_false(node.hud_box.visible)
 	assert_eq(node.board.length_cap, 6, "did not loop back to board 1")
+
+func test_empty_sequence_shows_end_of_sequence_without_crashing() -> void:
+	var node := await _spawn([] as Array[BoardData])
+	assert_true(node.end_label.visible)
+	assert_false(node.hud_box.visible)
