@@ -83,3 +83,21 @@ func test_done_hidden_until_dog_then_shows_results_and_freezes() -> void:
 	var length_before := board_node.board.length_used
 	board_node.input_controller.handle_tap(Vector2i(4, 2))
 	assert_eq(board_node.board.length_used, length_before)
+
+func test_results_text_shows_total_and_enclosure_breakdown() -> void:
+	var scene: PackedScene = load("res://scenes/game_board.tscn")
+	var board_node: GameBoard = add_child_autofree(scene.instantiate())
+	await wait_process_frames(1)
+	for p in [Vector2i(2, 1), Vector2i(3, 2), Vector2i(2, 3), Vector2i(1, 2)]:
+		board_node.input_controller.handle_tap(p)
+	board_node.done_button.pressed.emit()
+
+	var report := board_node.board.final_report
+	var lines: Array[String] = []
+	for child in board_node.results_panel.get_children():
+		lines.append((child as Label).text)
+	assert_eq(lines.size(), report.enclosures.size() + 1)
+	assert_string_contains(lines[0], "Total: %d" % report.total)
+	assert_string_contains(lines[1], "Enclosure 1")
+	assert_string_contains(lines[1], "= %d" % report.enclosures[0].score)
+	assert_string_contains(lines[1], "Empty")

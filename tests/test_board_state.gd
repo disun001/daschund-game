@@ -328,12 +328,24 @@ func test_taps_after_submit_have_no_effect() -> void:
 	assert_eq(board.length_used, 2)
 	assert_eq(board.get_cell(Vector2i(2, 2)), Cell.BODY)
 
-func test_final_report_is_a_snapshot_not_live() -> void:
-	var board := _connected_dog_board()
-	board.submit()
-	var snapshot := board.final_report
-	var total := snapshot.total
+func _ring_board(center: Cell) -> BoardState:
+	var board := _empty_board(5, 5, 10)
+	for p in [Vector2i(2, 1), Vector2i(3, 2), Vector2i(2, 3), Vector2i(1, 2)]:
+		board.resolve_tap(p)
+	board._set_cell(Vector2i(2, 2), center)
+	return board
 
-	board.score_report()  # live recompute must not alter snapshot
-	assert_same(board.final_report, snapshot)
-	assert_eq(board.final_report.total, total)
+func test_final_report_is_a_snapshot_not_live() -> void:
+	var board := _ring_board(Cell.APPLE)
+	assert_true(board.submit())
+	assert_eq(board.final_report.total, BoardState.POINTS_APPLE)
+
+	board._set_cell(Vector2i(2, 2), Cell.BEE)  # mutate live board directly
+	assert_eq(board.score_report().total, BoardState.POINTS_BEE, "live score moved")
+	assert_eq(board.final_report.total, BoardState.POINTS_APPLE, "snapshot did not")
+	assert_eq(board.final_report.enclosures[0].tally, {Cell.APPLE: 1})
+
+func test_enclosure_tally_counts_cell_types() -> void:
+	var board := _ring_board(Cell.CHERRY)
+	var tally: Dictionary = board.score_report().enclosures[0].tally
+	assert_eq(tally, {Cell.CHERRY: 1})

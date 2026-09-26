@@ -68,13 +68,9 @@ func _show_results() -> void:
 	results_panel.visible = true
 
 func _tally_text(enclosure: BoardState.Enclosure) -> String:
-	var counts := {}
-	for c in enclosure.cells:
-		var name: String = BoardState.Cell.find_key(board.get_cell(c)).capitalize()
-		counts[name] = counts.get(name, 0) + 1
 	var parts: Array[String] = []
-	for name in counts:
-		parts.append("%d %s" % [counts[name], name])
+	for cell in enclosure.tally:
+		parts.append("%d %s" % [enclosure.tally[cell], BoardState.Cell.find_key(cell).capitalize()])
 	return ", ".join(parts)
 
 func _on_board_changed() -> void:

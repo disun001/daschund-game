@@ -153,6 +153,8 @@ func _add_body(pos: Vector2i) -> void:
 class Enclosure extends RefCounted:
 	var cells: Array[Vector2i] = []
 	var score: int = 0
+	## Count of each Cell type (Cell -> int) inside this Enclosure.
+	var tally: Dictionary = {}
 
 ## Result of score_report(): every Enclosure plus the summed score.
 class ScoreReport extends RefCounted:
@@ -178,7 +180,9 @@ func score_report() -> ScoreReport:
 			if enclosure.cells.is_empty():
 				continue
 			for c in enclosure.cells:
-				enclosure.score += _cell_points(get_cell(c))
+				var cell := get_cell(c)
+				enclosure.score += _cell_points(cell)
+				enclosure.tally[cell] = enclosure.tally.get(cell, 0) + 1
 			report.enclosures.append(enclosure)
 			report.total += enclosure.score
 	return report
