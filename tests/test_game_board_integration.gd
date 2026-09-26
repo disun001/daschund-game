@@ -2,6 +2,17 @@ extends GutTest
 
 const Cell = BoardState.Cell
 
+func _spawn_open_board() -> GameBoard:
+	var rows: Array[String] = []
+	for i in range(8):
+		rows.append("........")
+	var boards: Array[BoardData] = [BoardData.new(rows, 12)]
+	var scene: PackedScene = load("res://scenes/game_board.tscn")
+	var node: GameBoard = scene.instantiate()
+	node.sequence = BoardSequence.new(boards)
+	add_child_autofree(node)
+	return node
+
 func _click_at(controller: InputController, screen_pos: Vector2) -> void:
 	var event := InputEventMouseButton.new()
 	event.button_index = MOUSE_BUTTON_LEFT
@@ -10,8 +21,7 @@ func _click_at(controller: InputController, screen_pos: Vector2) -> void:
 	controller._unhandled_input(event)
 
 func test_real_input_event_resolves_to_the_correct_cell() -> void:
-	var scene: PackedScene = load("res://scenes/game_board.tscn")
-	var board_node: GameBoard = add_child_autofree(scene.instantiate())
+	var board_node := _spawn_open_board()
 	await wait_process_frames(1)
 
 	var cell_px: int = board_node.board_view.cell_size()
@@ -33,22 +43,19 @@ func test_real_input_event_resolves_to_the_correct_cell() -> void:
 	assert_false(board_node.board.can_submit(), "split Dog cannot be submitted")
 
 func test_input_controller_adopts_board_view_cell_size() -> void:
-	var scene: PackedScene = load("res://scenes/game_board.tscn")
-	var board_node: GameBoard = add_child_autofree(scene.instantiate())
+	var board_node := _spawn_open_board()
 	await wait_process_frames(1)
 
 	assert_eq(board_node.input_controller.cell_pixel_size, board_node.board_view.cell_size())
 
 
 func test_hud_shows_live_score() -> void:
-	var scene: PackedScene = load("res://scenes/game_board.tscn")
-	var board_node: GameBoard = add_child_autofree(scene.instantiate())
+	var board_node := _spawn_open_board()
 	await wait_process_frames(1)
 	assert_eq(board_node.score_label.text, "Score: 0")
 
 func test_hud_score_updates_after_edit_that_encloses() -> void:
-	var scene: PackedScene = load("res://scenes/game_board.tscn")
-	var board_node: GameBoard = add_child_autofree(scene.instantiate())
+	var board_node := _spawn_open_board()
 	await wait_process_frames(1)
 	# A diagonal diamond around (2,2) seals that cell (no squeezing).
 	for p in [Vector2i(2, 1), Vector2i(3, 2), Vector2i(2, 3), Vector2i(1, 2)]:
@@ -58,8 +65,7 @@ func test_hud_score_updates_after_edit_that_encloses() -> void:
 	assert_eq(board_node.score_label.text, "Score: 1")
 
 func test_done_hidden_until_dog_then_shows_results_and_freezes() -> void:
-	var scene: PackedScene = load("res://scenes/game_board.tscn")
-	var board_node: GameBoard = add_child_autofree(scene.instantiate())
+	var board_node := _spawn_open_board()
 	await wait_process_frames(1)
 
 	assert_false(board_node.done_button.visible, "no Dog yet")
@@ -85,8 +91,7 @@ func test_done_hidden_until_dog_then_shows_results_and_freezes() -> void:
 	assert_eq(board_node.board.length_used, length_before)
 
 func test_results_text_shows_total_and_enclosure_breakdown() -> void:
-	var scene: PackedScene = load("res://scenes/game_board.tscn")
-	var board_node: GameBoard = add_child_autofree(scene.instantiate())
+	var board_node := _spawn_open_board()
 	await wait_process_frames(1)
 	for p in [Vector2i(2, 1), Vector2i(3, 2), Vector2i(2, 3), Vector2i(1, 2)]:
 		board_node.input_controller.handle_tap(p)

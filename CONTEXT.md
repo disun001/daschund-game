@@ -47,3 +47,4 @@ A region of Cells that has no path of empty/passable Cells connecting it to the 
 - Technical representation: **Godot `TileMap` node backed by a plain 2D data array** (Cell enum: empty/body/water/apple/cherry/bee). The array is the source of truth for game logic (flood-fill, solver, input hit-testing); the TileMap only reflects it visually.
 - Starting point values (tunable): **Cell +1, Apple +5, Cherry +10, Bee -5**.
 - MVP board sequencing: **fixed designed order** through the 5-10 hand-placed boards (not shuffled), so the spread of test situations is played deliberately.
+- Board data: each board is **plain data** (`BoardData`: glyph rows + Dog Length cap) authored in `BoardCatalog`, separate from `BoardState` logic. `BoardSequence` plays them in fixed order; after Results, "Next board" instantiates a fresh `BoardState`. After the last board the game shows an **end-of-sequence** screen ("All boards complete") — no loop back.
