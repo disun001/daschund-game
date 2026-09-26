@@ -2,7 +2,7 @@
 
 Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
-> This repo has no git remote yet. Once it's pushed to GitHub, `gh` will infer the repo automatically when run inside the clone.
+Repo: `disun001/daschund-game`. `gh` infers this automatically when run inside the clone.
 
 ## Conventions
 
