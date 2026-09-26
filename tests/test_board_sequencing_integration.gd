@@ -66,3 +66,18 @@ func test_empty_sequence_shows_end_of_sequence_without_crashing() -> void:
 	var node := await _spawn([] as Array[BoardData])
 	assert_true(node.end_label.visible)
 	assert_false(node.hud_box.visible)
+
+func test_hud_shows_dog_length_budget() -> void:
+	var node := await _spawn(_two_boards())
+	assert_eq(node.length_label.text, "Dog Length: 0 / 4")
+	node.input_controller.handle_tap(Vector2i(0, 0))
+	node.input_controller.handle_tap(Vector2i(1, 0))
+	assert_eq(node.length_label.text, "Dog Length: 2 / 4")
+
+func test_hud_has_legend_naming_every_element_with_points() -> void:
+	var node := await _spawn(_two_boards())
+	var text := ""
+	for row in node.legend_box.get_children():
+		text += (row.get_child(1) as Label).text + "\n"
+	for expected in ["Water", "Apple +5", "Cherry +10", "Bee -5", "Dog"]:
+		assert_string_contains(text, expected)

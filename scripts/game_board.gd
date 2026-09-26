@@ -17,6 +17,8 @@ var board: BoardState
 var split_warning: Label
 var done_button: Button
 var score_label: Label
+var length_label: Label
+var legend_box: VBoxContainer
 var hud_box: VBoxContainer
 var results_panel: VBoxContainer
 var next_button: Button
@@ -70,6 +72,9 @@ func _build_hud() -> void:
 	layer.add_child(box)
 	score_label = Label.new()
 	box.add_child(score_label)
+	length_label = Label.new()
+	box.add_child(length_label)
+	_build_legend(box)
 	split_warning = Label.new()
 	split_warning.text = "Dog is split"
 	box.add_child(split_warning)
@@ -89,6 +94,28 @@ func _build_hud() -> void:
 	end_label.text = "All boards complete"
 	end_label.visible = false
 	layer.add_child(end_label)
+
+## One row per element: colour swatch + name and point value.
+func _build_legend(parent: Control) -> void:
+	legend_box = VBoxContainer.new()
+	parent.add_child(legend_box)
+	var entries := [
+		[BoardState.Cell.BODY, "Dog"],
+		[BoardState.Cell.WATER, "Water (wall)"],
+		[BoardState.Cell.APPLE, "Apple +%d" % BoardState.POINTS_APPLE],
+		[BoardState.Cell.CHERRY, "Cherry +%d" % BoardState.POINTS_CHERRY],
+		[BoardState.Cell.BEE, "Bee %d" % BoardState.POINTS_BEE],
+	]
+	for entry in entries:
+		var row := HBoxContainer.new()
+		var swatch := ColorRect.new()
+		swatch.color = BoardView.CELL_COLORS[entry[0]]
+		swatch.custom_minimum_size = Vector2(16, 16)
+		row.add_child(swatch)
+		var label := Label.new()
+		label.text = entry[1]
+		row.add_child(label)
+		legend_box.add_child(row)
 
 func _on_done_pressed() -> void:
 	if board.submit():
@@ -127,3 +154,4 @@ func _refresh() -> void:
 	done_button.visible = board.has_dog()
 	done_button.disabled = not board.can_submit()
 	score_label.text = "Score: %d" % board.score_report().total
+	length_label.text = "Dog Length: %d / %d" % [board.length_used, board.length_cap]
