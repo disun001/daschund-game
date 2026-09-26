@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://b8f0jq2r4v3xg"]
+
+[ext_resource type="Script" path="res://scripts/game_board.gd" id="1_gameboard"]
+[ext_resource type="Script" path="res://scripts/board_view.gd" id="2_boardview"]
+[ext_resource type="Script" path="res://scripts/input_controller.gd" id="3_inputcontroller"]
+
+[node name="GameBoard" type="Node2D"]
+script = ExtResource("1_gameboard")
+
+[node name="BoardView" type="TileMapLayer" parent="."]
+script = ExtResource("2_boardview")
+
+[node name="InputController" type="Node" parent="."]
+script = ExtResource("3_inputcontroller")
+board_view_path = NodePath("../BoardView")
