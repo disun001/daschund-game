@@ -49,6 +49,21 @@ func test_tap_on_nonadjacent_empty_cell_is_noop() -> void:
 	assert_eq(board.length_used, 1)
 	assert_eq(board.get_cell(Vector2i(4, 4)), Cell.EMPTY)
 
+func test_tap_on_nonadjacent_water_is_noop() -> void:
+	var grid := [
+		[Cell.EMPTY, Cell.EMPTY, Cell.EMPTY],
+		[Cell.EMPTY, Cell.EMPTY, Cell.EMPTY],
+		[Cell.WATER, Cell.EMPTY, Cell.EMPTY],
+	]
+	var board := BoardState.new(3, 3, 10, grid)
+	board.resolve_tap(Vector2i(2, 0))
+
+	var action := board.resolve_tap(Vector2i(0, 2))
+
+	assert_eq(action, Action.INVALID)
+	assert_eq(board.length_used, 1)
+	assert_eq(board.get_cell(Vector2i(0, 2)), Cell.WATER)
+
 func test_tap_on_water_is_noop() -> void:
 	var grid := [[Cell.EMPTY, Cell.WATER], [Cell.EMPTY, Cell.EMPTY]]
 	var board := BoardState.new(2, 2, 10, grid)

@@ -37,5 +37,6 @@ func handle_tap_at_local_position(local_pos: Vector2) -> void:
 func handle_tap(cell: Vector2i) -> void:
 	if _board == null:
 		return
-	_board.resolve_tap(cell)
-	board_changed.emit()
+	var action := _board.resolve_tap(cell)
+	if action != BoardState.Action.INVALID:
+		board_changed.emit()
