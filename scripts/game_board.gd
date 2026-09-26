@@ -16,6 +16,7 @@ var board: BoardState
 
 func _ready() -> void:
 	board = BoardState.new(board_width, board_height, dog_length_cap)
+	input_controller.cell_pixel_size = board_view.cell_size()
 	input_controller.set_board(board)
 	input_controller.board_changed.connect(_on_board_changed)
 	board_view.sync_from_board(board)

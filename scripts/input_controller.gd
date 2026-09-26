@@ -5,7 +5,7 @@ extends Node
 ## Holds no game-state of its own.
 
 @export var board_view_path: NodePath
-@export var cell_pixel_size: int = 16
+var cell_pixel_size: int = 16
 
 var _board: BoardState
 var _board_view: BoardView

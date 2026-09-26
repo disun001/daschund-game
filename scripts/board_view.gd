@@ -1,7 +1,7 @@
 class_name BoardView
 extends TileMapLayer
 
-const CELL_PIXEL_SIZE := 16
+const CELL_PIXEL_SIZE := 48
 
 const CELL_ORDER: Array[BoardState.Cell] = [
 	BoardState.Cell.EMPTY,

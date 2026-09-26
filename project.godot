@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="Dachshund Enclosure Game"
-config/features=PackedStringArray("4.7", "GL Compatibility")
 run/main_scene="res://scenes/game_board.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [editor_plugins]
 
