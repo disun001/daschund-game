@@ -31,6 +31,7 @@ A region of Cells that has no path of empty/passable Cells connecting it to the 
 - Self-crossing: a Cell is never occupied twice. Tapping an own-Body Cell is always removal, never extension.
 - Length budget: **fixed cap on simultaneous Body length** ("Dog Length" — analogous to enclose.horse's wall budget). Extending past the cap is illegal until the player removes Body Cells elsewhere. Removal refunds length immediately — the cap constrains current occupancy, not cumulative moves made.
 - Board end condition: **live score + explicit "Done" action**. Score updates continuously as the player edits; the player taps Done when satisfied, locking in the final score and moving to a Results screen.
+- Done behaviour: Done appears once a Dog is placed. Pressing it **freezes** the board (taps are ignored) and stores a **final report** — a snapshot of the Enclosure/score query. The Results screen shows the total and per-Enclosure tally from that snapshot.
 - Multiple Enclosures: **all disconnected regions are scored and summed**, not just the single best one. The flood-fill naturally finds every disconnected region at once.
 - Scoring formula: **each enclosed empty Cell is worth 1 point** on its own, plus/minus Apple/Cherry/Bee modifiers on top. Matches enclose.horse's own model (enclosed grass there is worth 1 too) — raw enclosed area is itself a valid strategy, not just object-targeting.
 - Own-value scoring: an Apple/Cherry/Bee Cell scores **only its own value, replacing the +1** (e.g. an enclosed Bee is -5, not -4). Only empty enclosed Cells score +1.

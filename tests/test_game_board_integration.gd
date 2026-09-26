@@ -81,5 +81,5 @@ func test_done_hidden_until_dog_then_shows_results_and_freezes() -> void:
 	assert_false(board_node.hud_box.visible)
 
 	var length_before := board_node.board.length_used
-	board_node.input_controller.handle_tap(Vector2i(5, 2))
+	board_node.input_controller.handle_tap(Vector2i(4, 2))
 	assert_eq(board_node.board.length_used, length_before)
