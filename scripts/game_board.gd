@@ -8,6 +8,9 @@ extends Node2D
 @onready var board_view: BoardView = $BoardView
 @onready var input_controller: InputController = $InputController
 
+const HUD_MARGIN := 8
+const HUD_LINE_HEIGHT := 28
+
 ## Fixed play order. Tests may assign one before the node enters the tree.
 var sequence: BoardSequence
 var board: BoardState
@@ -31,13 +34,13 @@ func _ready() -> void:
 func _start_board() -> void:
 	board = sequence.current().make_state()
 	input_controller.set_board(board)
-	var origin := Vector2(8, board.height * board_view.cell_size() + 8)
+	var origin := Vector2(HUD_MARGIN, board.height * board_view.cell_size() + HUD_MARGIN)
 	hud_box.position = origin
 	results_panel.position = origin
 	end_label.position = origin
 	for child in results_panel.get_children():
-		child.queue_free()
 		results_panel.remove_child(child)
+		child.queue_free()
 	results_panel.visible = false
 	next_button.visible = false
 	hud_box.visible = true
@@ -102,7 +105,7 @@ func _show_results() -> void:
 		line.text = "Enclosure %d: %s = %d" % [i + 1, _tally_text(enclosure), enclosure.score]
 		results_panel.add_child(line)
 	results_panel.visible = true
-	next_button.position = results_panel.position + Vector2(0, (report.enclosures.size() + 1) * 28)
+	next_button.position = results_panel.position + Vector2(0, (report.enclosures.size() + 1) * HUD_LINE_HEIGHT)
 	next_button.text = "Finish" if sequence.is_last() else "Next board"
 	next_button.visible = true
 
