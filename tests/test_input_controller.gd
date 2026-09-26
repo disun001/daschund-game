@@ -9,7 +9,7 @@ func test_tap_converts_local_position_to_grid_cell_and_resolves() -> void:
 
 	controller.handle_tap_at_local_position(Vector2(40, 24))
 
-	assert_eq(board.head(), Vector2i(2, 1))
+	assert_eq(board.get_cell(Vector2i(2, 1)), BoardState.Cell.BODY)
 	assert_eq(board.length_used, 1)
 
 func test_invalid_tap_does_not_emit_board_changed() -> void:

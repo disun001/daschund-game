@@ -13,13 +13,34 @@ extends Node2D
 @onready var input_controller: InputController = $InputController
 
 var board: BoardState
+var split_warning: Label
+var done_button: Button
 
 func _ready() -> void:
 	board = BoardState.new(board_width, board_height, dog_length_cap)
 	input_controller.cell_pixel_size = board_view.cell_size()
 	input_controller.set_board(board)
 	input_controller.board_changed.connect(_on_board_changed)
-	board_view.sync_from_board(board)
+	_build_hud()
+	_refresh()
+
+func _build_hud() -> void:
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var box := VBoxContainer.new()
+	box.position = Vector2(8, board_height * board_view.cell_size() + 8)
+	layer.add_child(box)
+	split_warning = Label.new()
+	split_warning.text = "Dog is split"
+	box.add_child(split_warning)
+	done_button = Button.new()
+	done_button.text = "Done"
+	box.add_child(done_button)
 
 func _on_board_changed() -> void:
+	_refresh()
+
+func _refresh() -> void:
 	board_view.sync_from_board(board)
+	split_warning.visible = board.has_dog() and not board.is_dog_connected()
+	done_button.disabled = not board.can_submit()

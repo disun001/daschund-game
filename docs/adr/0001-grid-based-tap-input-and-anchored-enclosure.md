@@ -7,3 +7,6 @@ We picked this over a freeform continuous/drag model or an unrestricted self-cro
 Considered and rejected: continuous drag with trailing body (Snake-like) — rejected because a wrong turn is unrecoverable without a full restart; continuous drag with a pinned Tail — rejected because a static anchor telegraphs the solution; unrestricted self-crossing (multiple simultaneous loops) — rejected because it reintroduces double-occupied-cell geometry and can split the board into multiple disjoint regions, which we explicitly want to avoid (always exactly one enclosed area from self-touch).
 
 This is hard to reverse once the grid, flood-fill, and generator/validator are built around it — a future reader seeing "why is this a grid game with tap controls, not a smooth drag-the-dog game?" should look here.
+
+
+> **Partly superseded by [ADR 0002](0002-free-form-body-editing.md):** the single-path Dog, truncate-back removal and Tail-closure exception no longer apply. The grid, tap input and flood-fill reasoning still stand.

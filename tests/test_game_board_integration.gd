@@ -21,15 +21,16 @@ func test_real_input_event_resolves_to_the_correct_cell() -> void:
 	_click_at(board_node.input_controller, Vector2(3 * cell_px + 4, 3 * cell_px + 4))
 	_click_at(board_node.input_controller, Vector2(4 * cell_px + 4, 4 * cell_px + 4))
 
-	assert_eq(board_node.board.head(), Vector2i(4, 4), "head after two extends")
+	assert_eq(board_node.board.get_cell(Vector2i(4, 4)), Cell.BODY, "third cell placed")
 	assert_eq(board_node.board.length_used, 3)
 
-	# Tap the SECOND cell placed (3,3) -> should truncate to it, dropping (4,4).
+	# Tap the middle cell (3,3) -> removes only that cell; the Dog splits.
 	_click_at(board_node.input_controller, Vector2(3 * cell_px + 4, 3 * cell_px + 4))
 
-	assert_eq(board_node.board.head(), Vector2i(3, 3), "truncating the middle cell should move head there")
 	assert_eq(board_node.board.length_used, 2)
-	assert_eq(board_node.board.get_cell(Vector2i(4, 4)), Cell.EMPTY, "the dropped cell should render empty")
+	assert_eq(board_node.board.get_cell(Vector2i(3, 3)), Cell.EMPTY, "the tapped cell should render empty")
+	assert_eq(board_node.board.get_cell(Vector2i(4, 4)), Cell.BODY, "cells past it are kept")
+	assert_false(board_node.board.can_submit(), "split Dog cannot be submitted")
 
 func test_input_controller_adopts_board_view_cell_size() -> void:
 	var scene: PackedScene = load("res://scenes/game_board.tscn")
