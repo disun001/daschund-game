@@ -56,3 +56,30 @@ func test_hud_score_updates_after_edit_that_encloses() -> void:
 		_click_at(board_node.input_controller, Vector2(p.x * px + 4, p.y * px + 4))
 	assert_eq(board_node.board.length_used, 4)
 	assert_eq(board_node.score_label.text, "Score: 1")
+
+func test_done_hidden_until_dog_then_shows_results_and_freezes() -> void:
+	var scene: PackedScene = load("res://scenes/game_board.tscn")
+	var board_node: GameBoard = add_child_autofree(scene.instantiate())
+	await wait_process_frames(1)
+
+	assert_false(board_node.done_button.visible, "no Dog yet")
+	board_node.input_controller.handle_tap(Vector2i(2, 2))
+	board_node.input_controller.handle_tap(Vector2i(3, 2))
+	assert_true(board_node.done_button.visible)
+	assert_false(board_node.done_button.disabled)
+
+	board_node.input_controller.handle_tap(Vector2i(4, 2))
+	board_node.input_controller.handle_tap(Vector2i(3, 2))
+	assert_true(board_node.done_button.disabled, "split Dog")
+	assert_true(board_node.split_warning.visible)
+	board_node.input_controller.handle_tap(Vector2i(3, 2))
+	board_node.input_controller.handle_tap(Vector2i(4, 2))
+
+	board_node.done_button.pressed.emit()
+	assert_true(board_node.board.is_frozen())
+	assert_true(board_node.results_panel.visible)
+	assert_false(board_node.hud_box.visible)
+
+	var length_before := board_node.board.length_used
+	board_node.input_controller.handle_tap(Vector2i(5, 2))
+	assert_eq(board_node.board.length_used, length_before)

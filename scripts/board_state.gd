@@ -10,6 +10,9 @@ var height: int
 var length_cap: int
 var length_used: int = 0
 
+## Snapshot of score_report() taken by submit(); null until the board is frozen.
+var final_report: ScoreReport = null
+
 ## Scoring values (tunable). An enclosed empty Cell is worth POINTS_CELL;
 ## Apple/Cherry/Bee Cells are worth their own value instead.
 const POINTS_CELL := 1
@@ -105,11 +108,22 @@ func is_dog_connected() -> bool:
 func can_submit() -> bool:
 	return is_dog_connected()
 
+func is_frozen() -> bool:
+	return final_report != null
+
+## Freezes the board and snapshots the score. Returns false (no-op) if the
+## Dog can't be submitted or the board is already frozen.
+func submit() -> bool:
+	if is_frozen() or not can_submit():
+		return false
+	final_report = score_report()
+	return true
+
 ## Resolves a tap on the given cell against the current board state, applying
 ## the single move it represents (place / extend / remove) or rejecting it
 ## as a no-op. Returns the Action taken.
 func resolve_tap(pos: Vector2i) -> Action:
-	if not is_in_bounds(pos):
+	if is_frozen() or not is_in_bounds(pos):
 		return Action.INVALID
 
 	var cell := get_cell(pos)

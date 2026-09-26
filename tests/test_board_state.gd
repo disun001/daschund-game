@@ -290,3 +290,50 @@ func test_modifiers_are_scored_per_enclosure() -> void:
 	assert_eq(report.enclosures[0].score, 2 * BoardState.POINTS_CELL + BoardState.POINTS_APPLE)
 	assert_eq(report.enclosures[1].score, 2 * BoardState.POINTS_CELL + BoardState.POINTS_BEE)
 	assert_eq(report.total, 4 * BoardState.POINTS_CELL + BoardState.POINTS_APPLE + BoardState.POINTS_BEE)
+
+# --- Done: freeze + snapshot ---
+
+func _connected_dog_board() -> BoardState:
+	var board := _empty_board(5, 5, 10)
+	board.resolve_tap(Vector2i(2, 2))
+	board.resolve_tap(Vector2i(3, 2))
+	return board
+
+func test_submit_freezes_board_and_snapshots_report() -> void:
+	var board := _connected_dog_board()
+	var live_total := board.score_report().total
+
+	assert_true(board.submit())
+	assert_true(board.is_frozen())
+	assert_eq(board.final_report.total, live_total)
+
+func test_submit_rejected_for_split_or_empty_dog() -> void:
+	var empty := _empty_board(5, 5, 10)
+	assert_false(empty.submit(), "no Dog")
+	assert_false(empty.is_frozen())
+
+	var split := _connected_dog_board()
+	split.resolve_tap(Vector2i(4, 2))
+	split.resolve_tap(Vector2i(3, 2))
+	assert_false(split.is_dog_connected())
+	assert_false(split.submit())
+	assert_false(split.is_frozen())
+
+func test_taps_after_submit_have_no_effect() -> void:
+	var board := _connected_dog_board()
+	board.submit()
+
+	assert_eq(board.resolve_tap(Vector2i(4, 2)), Action.INVALID, "extend ignored")
+	assert_eq(board.resolve_tap(Vector2i(2, 2)), Action.INVALID, "remove ignored")
+	assert_eq(board.length_used, 2)
+	assert_eq(board.get_cell(Vector2i(2, 2)), Cell.BODY)
+
+func test_final_report_is_a_snapshot_not_live() -> void:
+	var board := _connected_dog_board()
+	board.submit()
+	var snapshot := board.final_report
+	var total := snapshot.total
+
+	board.score_report()  # live recompute must not alter snapshot
+	assert_same(board.final_report, snapshot)
+	assert_eq(board.final_report.total, total)
