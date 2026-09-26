@@ -21,7 +21,7 @@ func test_first_board_loads_with_intended_layout_cap_and_no_dog() -> void:
 ## Expected values are independent literals, not read back from the catalog.
 const EXPECTED := [
 	{"size": Vector2i(6, 6), "cap": 8, "cells": {Vector2i(0, 2): Cell.WATER, Vector2i(1, 2): Cell.WATER, Vector2i(2, 2): Cell.APPLE}},
-	{"size": Vector2i(6, 6), "cap": 8, "cells": {Vector2i(2, 1): Cell.CHERRY}},
+	{"size": Vector2i(6, 6), "cap": 8, "cells": {Vector2i(0, 0): Cell.WATER, Vector2i(1, 0): Cell.WATER, Vector2i(2, 0): Cell.WATER, Vector2i(0, 1): Cell.WATER, Vector2i(2, 1): Cell.CHERRY, Vector2i(0, 2): Cell.WATER}},
 	{"size": Vector2i(6, 6), "cap": 9, "cells": {Vector2i(1, 1): Cell.WATER, Vector2i(2, 1): Cell.WATER, Vector2i(1, 2): Cell.WATER, Vector2i(2, 2): Cell.WATER, Vector2i(4, 2): Cell.BEE, Vector2i(2, 4): Cell.APPLE}},
 	{"size": Vector2i(6, 6), "cap": 8, "cells": {Vector2i(0, 0): Cell.WATER, Vector2i(0, 1): Cell.WATER, Vector2i(0, 2): Cell.WATER, Vector2i(0, 3): Cell.WATER, Vector2i(0, 4): Cell.WATER, Vector2i(1, 2): Cell.BEE, Vector2i(2, 2): Cell.CHERRY}},
 	{"size": Vector2i(6, 6), "cap": 10, "cells": {Vector2i(2, 0): Cell.WATER, Vector2i(3, 0): Cell.WATER, Vector2i(2, 1): Cell.APPLE, Vector2i(3, 4): Cell.APPLE, Vector2i(2, 5): Cell.WATER, Vector2i(3, 5): Cell.WATER}},

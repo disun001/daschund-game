@@ -13,11 +13,11 @@ static func all() -> Array[BoardData]:
 			"......",
 			"......",
 		], 8),
-		# 2. Corner pocket with a Cherry.
+		# 2. Water-cornered pocket with a Cherry.
 		BoardData.new([
-			"......",
-			"..C...",
-			"......",
+			"WWW...",
+			"W.C...",
+			"W.....",
 			"......",
 			"......",
 			"......",
